@@ -1,0 +1,4 @@
+<launch>
+	<node pkg="lab1" type="talker.cpp" name="talker" output="screen"/>
+	<node pkg="lab1" type="listener.cpp" name="listener" output="screen"/>
+</launch>
