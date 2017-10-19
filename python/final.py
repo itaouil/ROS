@@ -49,8 +49,11 @@ class colourIdentifier():
 			# Convert ROS image type to MAT format
 			cv_image = self.bridge.imgmsg_to_cv2(data, 'bgr8')
 
+			# Blur image (to reduce noise)
+			blur = cv2.blur(cv_image, (5,5))
+
 			# Change rgb format to hsv
-			hsv = cv2.cvtColor(cv_image, cv2.COLOR_BGR2HSV)
+			hsv = cv2.cvtColor(blur, cv2.COLOR_BGR2HSV)
 
 			# Green mask
 			green_mask = cv2.inRange(hsv, self.hsv_lower_green, self.hsv_upper_green)
@@ -71,14 +74,10 @@ class colourIdentifier():
 			contours = cv2.findContours(mask, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)[-2]
 
 			# Apply mask to original image
-			res = cv2.bitwise_and(cv_image, cv_image, mask=mask)
+			res = cv2.bitwise_and(blur, blur, mask=mask)
 
 			# Velocity
 			velocity = Twist()
-
-			# Draw all contours
-			# cv2.drawContours(res, contours, -1, (255,255,255), 3)
-			maxArea = 0
 
 			if len(contours) == 0:
 				velocity.angular.z = 0.2
@@ -90,9 +89,6 @@ class colourIdentifier():
 				cnt_area = cv2.contourArea(cnt)
 
 				if cnt_area > 1400:
-
-					# Get biggest area
-					maxArea = cv2.contourArea(cnt) if cv2.contourArea > maxArea else maxArea
 
 					# Get contour centroids
 					M = cv2.moments(cnt)
@@ -148,29 +144,6 @@ class colourIdentifier():
 		cv2.namedWindow('Camera_Feed')
 		cv2.imshow('Camera_Feed', res)
 		cv2.waitKey(5)
-
-		#Check if the area of the shape you want is big enough to be considered
-		# If it is then change the flag for that colour to be True(1)
-		# if colour_max_area > #<What do you think is a suitable area?>:
-			# draw a circle on the contour you're identifying as a blue object as well
-			# cv2.circle(<image>, (<center x>,<center y>), <radius>, <colour (rgb tuple)>, <thickness (defaults to 1)>)
-			# Then alter the values of any flags
-
-		# #Check if a flag has been set for the stop message
-		# if self.colour1_flag == 1:
-		# 	if (colour_max_area) > ****:
-		# 		# Too close to object, need to move backwards
-		# 		# linear = positive
-		# 		# angular = radius of minimum enclosing circle
-		# 	else if (colour_max_area) < ****:
-		# 		# Too far away from object, need to move forwards
-		# 		# linear = positive
-		# 		# angular = radius of minimum enclosing circle
-		#
-		# 	self.<publisher_name>.publish(<Move>)
-
-		# Be sure to do this for the other colour as well
-		#Show the resultant images you have created. You can show all of them or just the end result if you wish to.
 
 def main(args):
 	# Initialise node
