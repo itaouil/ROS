@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# This final piece fo skeleton code will be centred around gettign the students to follow a colour and stop upon sight of another one.
 
 from __future__ import division
 import cv2
@@ -109,33 +108,33 @@ class colourIdentifier():
 					self.blue_flag = 1 if bluepixelpoints != None else 0
 					print("[red, green, blue]: ", [self.red_flag, self.green_flag, self.blue_flag])
 
-				# If red keep tracking
-				if self.green_flag == 1 and self.red_flag == 0:
+					# If red keep tracking
+					if self.green_flag == 1 and self.red_flag == 0:
 
-					print(cnt_area)
+						print(cnt_area)
 
-					# Center red
-					if self.x - cx > 330:
-						velocity.angular.z = 0.1
-					elif self.x - cx < 300:
-						velocity.angular.z = -0.1
-					else:
+						# Center red
+						if self.x - cx > 330:
+							velocity.angular.z = 0.1
+						elif self.x - cx < 300:
+							velocity.angular.z = -0.1
+						else:
+							velocity.angular.z = 0
+
+							if cnt_area > 70000:
+								velocity.linear.x = -0.2
+
+							if cnt_area < 20000:
+								velocity.linear.x = 0.2
+
+					elif self.green_flag == 1 and self.red_flag == 1:
+						velocity.linear.x = 0
 						velocity.angular.z = 0
 
-						if cnt_area > 70000:
-							velocity.linear.x = -0.2
+					else:
+						velocity.angular.z = 0.2
 
-						if cnt_area < 20000:
-							velocity.linear.x = 0.2
-
-				elif self.green_flag == 1 and self.red_flag == 1:
-					velocity.linear.x = 0
-					velocity.angular.z = 0
-
-				else:
-					velocity.angular.z = 0.2
-
-				self.pub.publish(velocity)
+					self.pub.publish(velocity)
 
 		except Exception as CvBridgeError:
 			print('Error during image conversion: ', CvBridgeError)
